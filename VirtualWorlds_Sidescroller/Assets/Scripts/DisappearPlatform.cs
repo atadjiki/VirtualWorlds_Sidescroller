@@ -17,5 +17,15 @@ public class DisappearPlatform : LeverBehavior
         base.On_Behavior();
 
         platform.GetComponent<Rigidbody>().isKinematic = false;
+
+        StartCoroutine(DelayDestroy());
     }
+
+    IEnumerator DelayDestroy()
+    {
+        yield return new WaitForSeconds(5);
+        GameObject.Destroy(this);
+    }
+
+
 }

@@ -39,6 +39,11 @@ public class GameState : MonoBehaviour
         {
             StartCoroutine(StartGame());
         }
+
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 
     IEnumerator StartGame()
