@@ -18,8 +18,8 @@ public class PlayerController : MonoBehaviour
     private string JumpString = "Jumping";
     private string InteractString = "Interact";
 
-
     private Rigidbody rb;
+    private Collider col;
     public GameObject body;
     public float runSpeed = 0.05f;
     public float crouchSpeed = 0.02f;
@@ -31,9 +31,12 @@ public class PlayerController : MonoBehaviour
     private bool isInteracting;
 
     private float interactTime;
-
     private float jumpTime;
-    private CapsuleCollider jumpCollider;
+
+    private float jumpForce;
+
+    private float distToGround;
+ 
 
     public enum Direction { Up, Left, Right, None };
     public enum PlayerAnimation { IdleStand, IdleCrouch, RunStand, RunCrouch, Jump, Interact };
@@ -55,8 +58,8 @@ public class PlayerController : MonoBehaviour
     private void Build()
     {
         rb = GetComponent<Rigidbody>();
-        jumpCollider = GetComponentInChildren<CapsuleCollider>();
-        jumpCollider.enabled = false;
+        col = GetComponent<Collider>();
+        distToGround = col.bounds.extents.y;
 
         foreach (AnimationClip clip in animator.runtimeAnimatorController.animationClips)
         {
@@ -75,34 +78,40 @@ public class PlayerController : MonoBehaviour
         isJumping = false;
         isRunning = false;
         isInteracting = false;
-
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
+        if (IsGrounded() && isJumping)
+        {
+            isJumping = false;
+            Debug.Log("Grounded");
+        }
+
+        Debug.Log(IsGrounded());
+
         if (GameState.Instance.currentState == GameState.State.InGame)
         {
             if (isInteracting == false)
             {
-                if (isJumping == false)
+                if (Input.GetKey(KeyCode.A))
                 {
-                    if (Input.GetKey(KeyCode.A))
-                    {
-                        AnimationByDirection(Direction.Left);
-                        MoveDirection(Direction.Left);
+                    MoveDirection(Direction.Left);
+                    AnimationByDirection(Direction.Left);
+                }
+                else if (Input.GetKey(KeyCode.D))
+                {
+                    MoveDirection(Direction.Right);
+                    AnimationByDirection(Direction.Right);
+                }
+                else
+                {
+                    AnimationByDirection(Direction.None);
+                }
 
-                    }
-                    else if (Input.GetKey(KeyCode.D))
-                    {
-                        AnimationByDirection(Direction.Right);
-                        MoveDirection(Direction.Right);
-                    }
-                    else
-                    {
-                        AnimationByDirection(Direction.None);
-                    }
-
+                if (isJumping == false && IsGrounded())
+                {
+                    
                     if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.LeftShift))
                     {
                         isCrouching = true;
@@ -112,48 +121,14 @@ public class PlayerController : MonoBehaviour
                         isCrouching = false;
                     }
 
-                    if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space))
+                    if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.Space))
                     {
-                        isJumping = true;
-                        jumpCollider.enabled = true;
-                        SetAnimation(PlayerAnimation.Jump, false);
-                        MoveDirection(Direction.Up);
                         StartCoroutine(JumpCooldown());
                     }
                 }
             }
 
-        }
-    }
-
-    private void LateUpdate()
-    {
-        if (GameState.Instance.currentState == GameState.State.InGame)
-        {
-            if (isInteracting == false)
-            {
-                if (isJumping == false)
-                {
-                    if (Input.GetKey(KeyCode.A))
-                    {
-                        
-
-                    }
-                    else if (Input.GetKey(KeyCode.D))
-                    {
-                        
-                    }
-                    else
-                    {
-                        isRunning = false;
-                    }
-
-                    if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space))
-                    {
-                        
-                    }
-                }
-            }
+            
 
         }
     }
@@ -192,25 +167,21 @@ public class PlayerController : MonoBehaviour
         Ray ray = new Ray(body.transform.position, direction);
         RaycastHit hit;
 
-
-
         if (!Physics.Raycast(ray, out hit, direction.magnitude))
+        {
             return desiredPosition;
+        }
         else
         {
-
             if (hit.collider.gameObject.GetComponent<Wall>())
             {
-                Debug.Log("Blocked");
                 return body.transform.position;
             }
             else
             {
                 return hit.point;
             }
-
         }
-
     }
 
     private void MoveDirection(Direction direction)
@@ -242,8 +213,6 @@ public class PlayerController : MonoBehaviour
         {
             isRunning = false;
         }
-        
-
     }
 
     private void SetAnimation(PlayerAnimation animation, bool reset)
@@ -294,10 +263,39 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator JumpCooldown()
     {
-
+        isJumping = true;
+        MoveDirection(Direction.Up);
+        SetAnimation(PlayerAnimation.Jump, false);
         yield return new WaitForSeconds(jumpTime);
-        isJumping = false;
-        jumpCollider.enabled = false;
+    }
+
+   
+
+    public void Interact(Lever lever)
+    {
+        StartCoroutine(DelayInteract(lever));
+    }
+
+    IEnumerator DelayInteract(Lever lever)
+    {
+        isInteracting = true;
+        ResetTriggers();
+        animator.Play(InteractString);
+        yield return new WaitForSeconds(interactTime / 3);
+        lever.LeverCallback();
+        yield return new WaitForSeconds(2*interactTime / 3);
+        animator.SetTrigger(IdleStandString);
+        isInteracting = false;
+    }
+
+    public void Reset()
+    {
+        SetAnimation(PlayerAnimation.IdleStand, true);
+    }
+    
+    public bool IsGrounded()
+    {
+        return Physics.Raycast(col.transform.position, -Vector3.up, distToGround + 0.25f);
     }
 
     public bool Jumping()
@@ -318,27 +316,5 @@ public class PlayerController : MonoBehaviour
     public bool Interacting()
     {
         return isInteracting;
-    }
-
-    public void Interact(Lever lever)
-    {
-        StartCoroutine(DelayInteract(lever));
-    }
-
-    IEnumerator DelayInteract(Lever lever)
-    {
-        isInteracting = true;
-        ResetTriggers();
-        animator.Play(InteractString);
-        yield return new WaitForSeconds(interactTime/2);
-        lever.LeverCallback();
-        yield return new WaitForSeconds(interactTime/2);
-        animator.SetTrigger(IdleStandString);
-        isInteracting = false;
-    }
-
-    public void Reset()
-    {
-        SetAnimation(PlayerAnimation.IdleStand, true);
     }
 }
