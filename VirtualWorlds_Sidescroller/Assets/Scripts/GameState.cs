@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameState : MonoBehaviour
 {
@@ -53,6 +54,20 @@ public class GameState : MonoBehaviour
         yield return new WaitForSeconds(0.25f);
         currentState = State.InGame;
         waiting = false;
+    }
+
+    public void Failed()
+    {
+        PlayerController.Instance.Reset();
+        CameraRig.Instance.SwitchTo(CameraRig.CameraType.Start);
+        GameState.Instance.currentState = GameState.State.End;
+        StartCoroutine(DelayFailed());
+    }
+
+    IEnumerator DelayFailed()
+    {
+        yield return new WaitForSeconds(5);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
 }

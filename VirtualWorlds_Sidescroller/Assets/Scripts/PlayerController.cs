@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviour
 
     private bool isCrouching;
     private bool isJumping;
+    private bool isRunning;
     private bool isInteracting;
 
     private float interactTime;
@@ -72,6 +73,8 @@ public class PlayerController : MonoBehaviour
 
         isCrouching = false;
         isJumping = false;
+        isRunning = false;
+        isInteracting = false;
 
     }
 
@@ -87,18 +90,20 @@ public class PlayerController : MonoBehaviour
                     if (Input.GetKey(KeyCode.A))
                     {
                         AnimationByDirection(Direction.Left);
+                        MoveDirection(Direction.Left);
 
                     }
                     else if (Input.GetKey(KeyCode.D))
                     {
                         AnimationByDirection(Direction.Right);
+                        MoveDirection(Direction.Right);
                     }
                     else
                     {
                         AnimationByDirection(Direction.None);
                     }
 
-                    if (Input.GetKey(KeyCode.S))
+                    if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.LeftShift))
                     {
                         isCrouching = true;
                     }
@@ -107,11 +112,12 @@ public class PlayerController : MonoBehaviour
                         isCrouching = false;
                     }
 
-                    if (Input.GetKeyDown(KeyCode.W))
+                    if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space))
                     {
                         isJumping = true;
                         jumpCollider.enabled = true;
                         SetAnimation(PlayerAnimation.Jump, false);
+                        MoveDirection(Direction.Up);
                         StartCoroutine(JumpCooldown());
                     }
                 }
@@ -130,17 +136,21 @@ public class PlayerController : MonoBehaviour
                 {
                     if (Input.GetKey(KeyCode.A))
                     {
-                        MoveDirection(Direction.Left);
+                        
 
                     }
                     else if (Input.GetKey(KeyCode.D))
                     {
-                        MoveDirection(Direction.Right);
+                        
+                    }
+                    else
+                    {
+                        isRunning = false;
                     }
 
-                    if (Input.GetKeyDown(KeyCode.W))
+                    if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space))
                     {
-                        MoveDirection(Direction.Up);
+                        
                     }
                 }
             }
@@ -225,11 +235,14 @@ public class PlayerController : MonoBehaviour
                 rb.MovePosition(ValidateMoveVector(new Vector3(body.transform.position.x + (modifier * crouchSpeed), body.transform.position.y, body.transform.position.z)));
             }
 
+            isRunning = true;
+
         }
         else if (direction == Direction.Up)
         {
-            rb.MovePosition(new Vector3(body.transform.position.x, body.transform.position.y + jumpDistance, body.transform.position.z));
+            isRunning = false;
         }
+        
 
     }
 
@@ -292,6 +305,21 @@ public class PlayerController : MonoBehaviour
         return isJumping;
     }
 
+    public bool Crouching()
+    {
+        return isCrouching;
+    }
+
+    public bool Running()
+    {
+        return isRunning;
+    }
+
+    public bool Interacting()
+    {
+        return isInteracting;
+    }
+
     public void Interact(Lever lever)
     {
         StartCoroutine(DelayInteract(lever));
@@ -307,5 +335,10 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(interactTime/2);
         animator.SetTrigger(IdleStandString);
         isInteracting = false;
+    }
+
+    public void Reset()
+    {
+        SetAnimation(PlayerAnimation.IdleStand, true);
     }
 }

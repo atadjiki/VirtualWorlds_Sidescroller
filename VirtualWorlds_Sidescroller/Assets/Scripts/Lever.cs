@@ -46,8 +46,8 @@ public class Lever : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if(other.transform.parent.GetComponent<PlayerController>() 
-            && other.transform.parent.GetComponent<PlayerController>().Jumping() == false && Input.GetKeyDown(KeyCode.F))
+        if(other != null && other.GetComponent<InteractCollider>() 
+            && PlayerController.Instance.Jumping() == false && Input.GetKeyDown(KeyCode.F))
         {
             if(interactions > 1 && OneTime)
             {
@@ -56,7 +56,7 @@ public class Lever : MonoBehaviour
             else
             {
 
-                other.transform.parent.GetComponent<PlayerController>().Interact(this);
+                PlayerController.Instance.Interact(this);
 
                 
             }
