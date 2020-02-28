@@ -52,12 +52,28 @@ public class DetectionCollider : MonoBehaviour
         }
     }
 
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.GetComponent<PlayerDetectionCollider>())
+        {
+            if(PlayerController.Instance.Crouching())
+            {
+                Detecting = false;
+                timeDetected = 0;
+            }
+            else if(PlayerController.Instance.Crouching() == false && Detecting == false)
+            {
+                Detecting = true;
+                timeDetected = 0;
+            }
+        }
+    }
+
     private void OnTriggerExit(Collider other)
     {
         if (other.gameObject.GetComponent<PlayerDetectionCollider>())
         {
-            Detecting = false;
-            timeDetected = 0;
+            
             Debug.Log("Ending detection");
         }
     }

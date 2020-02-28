@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rb;
     private Collider col;
     public GameObject body;
+
     public float runSpeed = 0.05f;
     public float crouchSpeed = 0.02f;
     public float jumpDistance;
@@ -80,15 +81,8 @@ public class PlayerController : MonoBehaviour
         isInteracting = false;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        if (IsGrounded() && isJumping)
-        {
-            isJumping = false;
-            Debug.Log("Grounded");
-        }
-
-        Debug.Log(IsGrounded());
 
         if (GameState.Instance.currentState == GameState.State.InGame)
         {
@@ -109,7 +103,7 @@ public class PlayerController : MonoBehaviour
                     AnimationByDirection(Direction.None);
                 }
 
-                if (isJumping == false && IsGrounded())
+                if (isJumping == false)
                 {
                     
                     if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.LeftShift))
@@ -127,9 +121,6 @@ public class PlayerController : MonoBehaviour
                     }
                 }
             }
-
-            
-
         }
     }
 
@@ -176,6 +167,14 @@ public class PlayerController : MonoBehaviour
             if (hit.collider.gameObject.GetComponent<Wall>())
             {
                 return body.transform.position;
+            }
+            else if(hit.collider.gameObject.GetComponent<DetectionCollider>())
+            {
+                return desiredPosition;
+            }
+            else if (hit.collider.gameObject.GetComponent<Lever>())
+            {
+                return desiredPosition;
             }
             else
             {
@@ -267,6 +266,7 @@ public class PlayerController : MonoBehaviour
         MoveDirection(Direction.Up);
         SetAnimation(PlayerAnimation.Jump, false);
         yield return new WaitForSeconds(jumpTime);
+        isJumping = false;
     }
 
    
@@ -291,11 +291,6 @@ public class PlayerController : MonoBehaviour
     public void Reset()
     {
         SetAnimation(PlayerAnimation.IdleStand, true);
-    }
-    
-    public bool IsGrounded()
-    {
-        return Physics.Raycast(col.transform.position, -Vector3.up, distToGround + 0.25f);
     }
 
     public bool Jumping()
