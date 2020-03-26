@@ -22,6 +22,7 @@ public class AudioManager : MonoBehaviour
 
     public AudioClip player_jump;
     public AudioClip player_lever;
+    public AudioClip lever_interact;
 
     public AudioClip enemy_spotted;
 
@@ -29,7 +30,7 @@ public class AudioManager : MonoBehaviour
 
     public enum Music { ingame, success, failure, none };
 
-    public enum SFX { death_player, death_enemy, player_jump, player_lever, enemy_spotted };
+    public enum SFX { death_player, death_enemy, player_jump, player_lever, lever_interact, enemy_spotted };
 
     private static AudioManager _instance;
 
@@ -78,6 +79,10 @@ public class AudioManager : MonoBehaviour
         else if (sfx == SFX.player_lever)
         {
             source_SFX.PlayOneShot(player_lever);
+        }
+        else if(sfx == SFX.lever_interact)
+        {
+            source_SFX.PlayOneShot(lever_interact);
         }
 
     }

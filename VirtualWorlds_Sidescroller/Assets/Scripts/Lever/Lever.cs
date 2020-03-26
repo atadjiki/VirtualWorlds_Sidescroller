@@ -22,11 +22,24 @@ public class Lever : MonoBehaviour
     public LeverBehavior attachedBehavior;
     public GameObject highlightSphere;
 
+    private bool isStaying = false;
+    private bool canBeInteracted = false;
+
     // Start is called before the first frame update
     void Start()
     {
         highlightSphere.SetActive(false);
         SetToState(currentState);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F) && canBeInteracted)
+        {
+
+            PlayerController.Instance.Interact(this);
+            
+        }
     }
 
     void SetToState(State state)
@@ -52,22 +65,22 @@ public class Lever : MonoBehaviour
         if(other != null && other.GetComponent<InteractCollider>() 
             && PlayerController.Instance.Jumping() == false)
         {
-            highlightSphere.SetActive(true);
-
-            if(Input.GetKeyDown(KeyCode.F))
+            if(isStaying == false)
             {
+                highlightSphere.SetActive(true);
+                AudioManager.Instance.PlaySFX(AudioManager.SFX.lever_interact);
+                isStaying = true;
+            }
+
                 if (interactions > 1 && OneTime)
                 {
                     Debug.Log("Already interacted with lever");
                 }
                 else
                 {
-
-                    PlayerController.Instance.Interact(this);
-
-
+                    canBeInteracted = true;
                 }
-            }
+ 
             
             
         }
@@ -75,6 +88,8 @@ public class Lever : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
+        isStaying = false;
+        canBeInteracted = false;
         highlightSphere.SetActive(false);
     }
 

@@ -11,7 +11,7 @@ public class GameState : MonoBehaviour
 
     private bool waiting = false;
 
-    public bool skip_start = true;
+    public static bool skip_start = false;
 
     public enum State { Start, InGame, Paused, End };
     public State currentState;
@@ -47,6 +47,8 @@ public class GameState : MonoBehaviour
             UIManager.Instance.ToggleTitle(true);
             CameraRig.Instance.SwitchTo(CameraRig.CameraType.Start);
         }
+
+        skip_start = true;
     }
 
     private void Update()
@@ -86,9 +88,12 @@ public class GameState : MonoBehaviour
 
     public void FellToDeath()
     {
+        AudioManager.Instance.PlaySFX(AudioManager.SFX.death_player);
         PlayerController.Instance.Reset();
         UIManager.Instance.ToggleGameOverText(true);
-        CameraRig.Instance.SwitchTo(CameraRig.CameraType.Start);
+        CameraRig.Instance.CM_Main.Follow = null;
+        CameraRig.Instance.CM_Rotated.Follow = null;
+        
         GameState.Instance.currentState = GameState.State.End;
         StartCoroutine(DelayFailed());
     }

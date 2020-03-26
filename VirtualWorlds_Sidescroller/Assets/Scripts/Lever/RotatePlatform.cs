@@ -49,6 +49,7 @@ public class RotatePlatform : LeverBehavior
             if(obj.GetComponentInChildren<DetectionCollider>() != null)
             {
                 obj.GetComponentInChildren<DetectionCollider>().enabled = false;
+                AudioManager.Instance.PlaySFX(AudioManager.SFX.death_enemy);
                 Debug.Log("Disabled enemy " + obj);
             }
 

@@ -129,6 +129,7 @@ public class PlayerController : MonoBehaviour
                 else
                 {
                     AnimationByDirection(Direction.None);
+                    isRunning = false;
                 }
 
                 if (isJumping == false)
@@ -229,8 +230,6 @@ public class PlayerController : MonoBehaviour
             if (rotated == false)
             {
 
-                
-
                 if (isCrouching == false)
                 {
                     rb.MovePosition(ValidateMoveVector(new Vector3(body.transform.position.x + (modifier * runSpeed), body.transform.position.y, body.transform.position.z)));
@@ -258,6 +257,10 @@ public class PlayerController : MonoBehaviour
 
         }
         else if (direction == Direction.Up)
+        {
+            isRunning = false;
+        }
+        else
         {
             isRunning = false;
         }
