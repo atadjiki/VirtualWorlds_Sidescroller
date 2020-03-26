@@ -50,8 +50,11 @@ public class GameState : MonoBehaviour
     IEnumerator StartGame()
     {
         waiting = true;
+        UIManager.Instance.HideTitleText();
+        CameraRig.Instance.SwitchTo(CameraRig.CameraType.Player_Front);
+        yield return new WaitForSeconds(4f);
         CameraRig.Instance.SwitchTo(CameraRig.CameraType.Main);
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(1f);
         currentState = State.InGame;
         waiting = false;
     }
