@@ -31,6 +31,8 @@ public class PlayerController : MonoBehaviour
     private bool isRunning;
     private bool isInteracting;
 
+    public bool rotated = false;
+
     private float interactTime;
     private float jumpTime;
 
@@ -81,7 +83,22 @@ public class PlayerController : MonoBehaviour
         isInteracting = false;
     }
 
-    
+    private void Update()
+    {
+        if (GameState.Instance.currentState == GameState.State.InGame)
+        {
+
+            if (Input.GetKeyDown(KeyCode.LeftShift))
+            {
+                PostProcessingEffects.Instance.Vignette(true);
+            }
+            if (Input.GetKeyUp(KeyCode.LeftShift))
+            {
+                PostProcessingEffects.Instance.Vignette(false);
+            }
+        }
+
+    }
 
     private void FixedUpdate()
     {
@@ -116,6 +133,7 @@ public class PlayerController : MonoBehaviour
 
                 if (isJumping == false)
                 {
+                    
                     
                     if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.LeftShift))
                     {
@@ -206,16 +224,35 @@ public class PlayerController : MonoBehaviour
                 modifier = -1;
             }
 
-            body.transform.eulerAngles = new Vector3(0, modifier * 90, 0);
+            body.transform.localEulerAngles = new Vector3(0, modifier * 90, 0);
 
-            if (isCrouching == false)
+            if (rotated == false)
             {
-                rb.MovePosition(ValidateMoveVector(new Vector3(body.transform.position.x + (modifier * runSpeed), body.transform.position.y, body.transform.position.z)));
+
+                
+
+                if (isCrouching == false)
+                {
+                    rb.MovePosition(ValidateMoveVector(new Vector3(body.transform.position.x + (modifier * runSpeed), body.transform.position.y, body.transform.position.z)));
+                }
+                else
+                {
+                    rb.MovePosition(ValidateMoveVector(new Vector3(body.transform.position.x + (modifier * crouchSpeed), body.transform.position.y, body.transform.position.z)));
+                }
             }
             else
             {
-                rb.MovePosition(ValidateMoveVector(new Vector3(body.transform.position.x + (modifier * crouchSpeed), body.transform.position.y, body.transform.position.z)));
+
+                if (isCrouching == false)
+                {
+                    rb.MovePosition(ValidateMoveVector(new Vector3(body.transform.position.x, body.transform.position.y, body.transform.position.z + (-1* modifier * runSpeed))));
+                }
+                else
+                {
+                    rb.MovePosition(ValidateMoveVector(new Vector3(body.transform.position.x, body.transform.position.y, body.transform.position.z + (-1 * modifier * crouchSpeed))));
+                }
             }
+            
 
             isRunning = true;
 

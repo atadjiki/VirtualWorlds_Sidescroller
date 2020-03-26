@@ -20,10 +20,12 @@ public class Lever : MonoBehaviour
     private int interactions = 0;
 
     public LeverBehavior attachedBehavior;
+    public GameObject highlightSphere;
 
     // Start is called before the first frame update
     void Start()
     {
+        highlightSphere.SetActive(false);
         SetToState(currentState);
     }
 
@@ -46,22 +48,34 @@ public class Lever : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
+        
         if(other != null && other.GetComponent<InteractCollider>() 
-            && PlayerController.Instance.Jumping() == false && Input.GetKeyDown(KeyCode.F))
+            && PlayerController.Instance.Jumping() == false)
         {
-            if(interactions > 1 && OneTime)
-            {
-                Debug.Log("Already interacted with lever");
-            }
-            else
-            {
+            highlightSphere.SetActive(true);
 
-                PlayerController.Instance.Interact(this);
+            if(Input.GetKeyDown(KeyCode.F))
+            {
+                if (interactions > 1 && OneTime)
+                {
+                    Debug.Log("Already interacted with lever");
+                }
+                else
+                {
 
-                
+                    PlayerController.Instance.Interact(this);
+
+
+                }
             }
             
+            
         }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        highlightSphere.SetActive(false);
     }
 
     public void LeverCallback()

@@ -11,6 +11,8 @@ public class GameState : MonoBehaviour
 
     private bool waiting = false;
 
+    public bool skip_start = true;
+
     public enum State { Start, InGame, Paused, End };
     public State currentState;
 
@@ -30,8 +32,21 @@ public class GameState : MonoBehaviour
 
     private void Build()
     {
-        currentState = State.Start;
-        CameraRig.Instance.SwitchTo(CameraRig.CameraType.Start);
+
+        UIManager.Instance.ToggleGameOverText(false);
+
+        if (skip_start)
+        {
+            currentState = State.InGame;
+            UIManager.Instance.ToggleTitle(false);
+            CameraRig.Instance.SwitchTo(CameraRig.CameraType.Main);
+        }
+        else
+        {
+            currentState = State.Start;
+            UIManager.Instance.ToggleTitle(true);
+            CameraRig.Instance.SwitchTo(CameraRig.CameraType.Start);
+        }
     }
 
     private void Update()
@@ -50,6 +65,7 @@ public class GameState : MonoBehaviour
     IEnumerator StartGame()
     {
         waiting = true;
+        PostProcessingEffects.Instance.ChromaticAbberation();
         UIManager.Instance.HideTitleText();
         CameraRig.Instance.SwitchTo(CameraRig.CameraType.Player_Front);
         yield return new WaitForSeconds(4f);
@@ -59,9 +75,19 @@ public class GameState : MonoBehaviour
         waiting = false;
     }
 
-    public void Failed()
+    public void Spotted()
     {
         PlayerController.Instance.Reset();
+        CameraRig.Instance.SwitchTo(CameraRig.CameraType.Player_Front);
+        UIManager.Instance.ToggleGameOverText(true);
+        GameState.Instance.currentState = GameState.State.End;
+        StartCoroutine(DelayFailed());
+    }
+
+    public void FellToDeath()
+    {
+        PlayerController.Instance.Reset();
+        UIManager.Instance.ToggleGameOverText(true);
         CameraRig.Instance.SwitchTo(CameraRig.CameraType.Start);
         GameState.Instance.currentState = GameState.State.End;
         StartCoroutine(DelayFailed());

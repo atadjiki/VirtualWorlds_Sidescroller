@@ -10,6 +10,7 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance { get { return _instance; } }
 
     public TextMeshPro TitleText;
+    public GameObject GameOver;
 
     private void Awake()
     {
@@ -37,7 +38,7 @@ public class UIManager : MonoBehaviour
 
     internal IEnumerator FadeTitleText()
     {
-        float max_secs = 100f;
+        float max_secs = 5000f;
         float current = 0;
 
         while(current < max_secs)
@@ -46,5 +47,15 @@ public class UIManager : MonoBehaviour
             current += Time.fixedDeltaTime;
             yield return new WaitForEndOfFrame();
         }
+    }
+
+    public void ToggleGameOverText(bool flag)
+    {
+        GameOver.SetActive(flag);
+    }
+
+    public void ToggleTitle(bool flag)
+    {
+        TitleText.gameObject.SetActive(flag);
     }
 }

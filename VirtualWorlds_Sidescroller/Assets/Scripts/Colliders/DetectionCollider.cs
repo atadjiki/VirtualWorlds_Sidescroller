@@ -35,7 +35,7 @@ public class DetectionCollider : MonoBehaviour
                 {
                     DetectedPlayer = true;
                     Debug.Log("Detected Player!");
-                    GameState.Instance.Failed();
+                    GameState.Instance.Spotted();
                     this.transform.parent.GetComponentInChildren<SpeechController>().SetText("Got you!", false);
                 }
             }
