@@ -11,6 +11,7 @@ public class UIManager : MonoBehaviour
 
     public TextMeshPro TitleText;
     public GameObject GameOver;
+    public GameObject Success;
 
     private void Awake()
     {
@@ -57,5 +58,10 @@ public class UIManager : MonoBehaviour
     public void ToggleTitle(bool flag)
     {
         TitleText.gameObject.SetActive(flag);
+    }
+
+    public void ToggleSuccess(bool flag)
+    {
+        Success.gameObject.SetActive(flag);
     }
 }

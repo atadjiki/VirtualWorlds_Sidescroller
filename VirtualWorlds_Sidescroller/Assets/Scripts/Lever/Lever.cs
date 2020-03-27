@@ -36,9 +36,14 @@ public class Lever : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.F) && canBeInteracted)
         {
-
-            PlayerController.Instance.Interact(this);
-            
+            if (interactions > 1 && OneTime)
+            {
+                Debug.Log("Already interacted with lever");
+            }
+            else
+            {
+                PlayerController.Instance.Interact(this);
+            }
         }
     }
 
@@ -72,17 +77,7 @@ public class Lever : MonoBehaviour
                 isStaying = true;
             }
 
-                if (interactions > 1 && OneTime)
-                {
-                    Debug.Log("Already interacted with lever");
-                }
-                else
-                {
-                    canBeInteracted = true;
-                }
- 
-            
-            
+            canBeInteracted = true;
         }
     }
 

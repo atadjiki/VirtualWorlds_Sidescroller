@@ -12,9 +12,10 @@ public class CameraRig : MonoBehaviour
     public CinemachineVirtualCamera CM_Main;
     public CinemachineVirtualCamera CM_Rotated;
     public CinemachineVirtualCamera CM_Start;
+    public CinemachineVirtualCamera CM_Start_2;
     public CinemachineVirtualCamera CM_Player_Front;
 
-    public enum CameraType { Main, Rotated, Start, Player_Front };
+    public enum CameraType { Main, Rotated, Start, Start_2, Player_Front };
 
     private List<CinemachineVirtualCamera> cameras;
 
@@ -34,7 +35,7 @@ public class CameraRig : MonoBehaviour
 
     private void Build()
     {
-        cameras = new List<CinemachineVirtualCamera>() { CM_Main, CM_Rotated, CM_Start, CM_Player_Front };
+        cameras = new List<CinemachineVirtualCamera>() { CM_Main, CM_Rotated, CM_Start, CM_Start_2, CM_Player_Front };
     }
 
     public void SwitchTo(CameraType camera)
@@ -56,6 +57,10 @@ public class CameraRig : MonoBehaviour
         else if(camera == CameraType.Rotated)
         {
             CM_Rotated.enabled = true;
+        }
+        else if(camera == CameraType.Start_2)
+        {
+            CM_Start_2.enabled = true;
         }
     }
 

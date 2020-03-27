@@ -16,6 +16,8 @@ public class GameState : MonoBehaviour
     public enum State { Start, InGame, Paused, End };
     public State currentState;
 
+    public GameObject player_ragdoll;
+
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -32,7 +34,7 @@ public class GameState : MonoBehaviour
 
     private void Build()
     {
-
+        Cursor.visible = false;
         UIManager.Instance.ToggleGameOverText(false);
 
         if (skip_start)
@@ -69,6 +71,8 @@ public class GameState : MonoBehaviour
         waiting = true;
         PostProcessingEffects.Instance.ChromaticAbberation();
         UIManager.Instance.HideTitleText();
+        CameraRig.Instance.SwitchTo(CameraRig.CameraType.Start_2);
+        yield return new WaitForSeconds(1f);
         CameraRig.Instance.SwitchTo(CameraRig.CameraType.Player_Front);
         yield return new WaitForSeconds(4f);
         CameraRig.Instance.SwitchTo(CameraRig.CameraType.Main);
@@ -90,6 +94,8 @@ public class GameState : MonoBehaviour
     {
         AudioManager.Instance.PlaySFX(AudioManager.SFX.death_player);
         PlayerController.Instance.Reset();
+        Instantiate<GameObject>(player_ragdoll, PlayerController.Instance.gameObject.transform.position, PlayerController.Instance.gameObject.transform.rotation);
+        PlayerController.Instance.gameObject.SetActive(false);
         UIManager.Instance.ToggleGameOverText(true);
         CameraRig.Instance.CM_Main.Follow = null;
         CameraRig.Instance.CM_Rotated.Follow = null;
@@ -102,6 +108,15 @@ public class GameState : MonoBehaviour
     {
         yield return new WaitForSeconds(5);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void FinishGame()
+    {
+        PlayerController.Instance.Reset();
+        CameraRig.Instance.SwitchTo(CameraRig.CameraType.Player_Front);
+        UIManager.Instance.ToggleSuccess(true);
+        GameState.Instance.currentState = GameState.State.End;
+        StartCoroutine(DelayFailed());
     }
 
 }

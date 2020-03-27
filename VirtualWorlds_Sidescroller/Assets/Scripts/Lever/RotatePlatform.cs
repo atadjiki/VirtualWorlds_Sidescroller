@@ -6,6 +6,8 @@ public class RotatePlatform : LeverBehavior
     public GameObject platform;
     public GameObject[] toThrowOff;
 
+    public GameObject enemy_ragdoll;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -49,6 +51,10 @@ public class RotatePlatform : LeverBehavior
             if(obj.GetComponentInChildren<DetectionCollider>() != null)
             {
                 obj.GetComponentInChildren<DetectionCollider>().enabled = false;
+                GameObject enemy = Instantiate<GameObject>(enemy_ragdoll, obj.transform.position, obj.transform.rotation);
+                enemy.GetComponentInChildren<Rigidbody>().AddForce(enemy.transform.forward*100, ForceMode.Impulse);
+                StartCoroutine(DestroyAfterSecs(5, enemy));
+                obj.SetActive(false);
                 AudioManager.Instance.PlaySFX(AudioManager.SFX.death_enemy);
                 Debug.Log("Disabled enemy " + obj);
             }
